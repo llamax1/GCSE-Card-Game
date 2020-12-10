@@ -40,7 +40,7 @@ function base64($num) {
 $hand = [];
 
 for ($number=1;$number<=10;$number++){
-	foreach([['Red',2], ['Black',1], ['Yellow',0]] as $i){
+	foreach([['bg-danger',2], ['bg-dark',1], ['bg-warning',0]] as $i){
         array_push($hand, ['colour'=>$i,'number'=>$number]);
     }
 }
@@ -51,8 +51,8 @@ foreach($hand as $i){
     array_push($cleanhand, ['colour'=>$i['colour'][0],'number'=>$i['number']]);
 }
 
-$player1hand = [];
-$player2hand = [];
+$p1hand = [];
+$p2hand = [];
 
 $winners = [];
 $rounds = [];
@@ -61,25 +61,29 @@ $rounds = [];
 for ($i=0; $i < sizeof($hand); $i+=2){
     $round = [$cleanhand[$i], $cleanhand[$i+1]];
 	if (is_greater_than($hand[$i], $hand[$i+1])){
-		array_push($rounds, ['player1'=>$cleanhand[$i], 'player2'=>$cleanhand[$i+1], "1"]);
-        array_push($player1hand, $round[0]);
-        array_push($player1hand, $round[1]);
+		array_push($rounds, ['p1'=>$cleanhand[$i], 'p2'=>$cleanhand[$i+1], "1"]);
+        array_push($p1hand, $round[0]);
+        array_push($p1hand, $round[1]);
     }
 	else{
-        array_push($rounds, ['player1'=>$cleanhand[$i], 'player2'=>$cleanhand[$i+1], 'winner'=>"2"]);
-        array_push($player2hand, $round[0]);
-        array_push($player2hand, $round[1]);
+        array_push($rounds, ['p1'=>$cleanhand[$i], 'p2'=>$cleanhand[$i+1], 'winner'=>"2"]);
+        array_push($p2hand, $round[0]);
+        array_push($p2hand, $round[1]);
     }
 }
 
-$gameno = file_get_contents("current.txt");
+$gameno = file_get_contents("____current.txt");
 
 $gameid = base64($gameno);
 
-file_put_contents($gameid.'.json', json_encode(Array("rounds"=>$rounds,"player1hand"=>$player1hand,"player2hand"=>$player2hand)));
+if (count($p1hand)>count($p2hand)){$winner="1";$loser="2";}
+elseif (count($p2hand)>count($p1hand)){$winner="2";$loser="1";}
+else {$winner = "!!Oh dear. The computer messed up.!!";}
+
+file_put_contents($gameid.'.json', json_encode(Array("winner"=>$winner, "loser" => $loser, "rounds"=>$rounds,"p1hand"=>$p1hand,"p2hand"=>$p2hand)));
 
 //Comment out to not change gameid between rounds
-file_put_contents("current.txt", $gameno+1);
+file_put_contents("____current.txt", $gameno+1);
 
 echo $gameid;
 

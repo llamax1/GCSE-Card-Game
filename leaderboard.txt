@@ -1,0 +1,2 @@
+Max,18
+& "C:/Program Files/Python38/python.exe" c:/Users/Max/Documents/GitHub/card-game/main.py,16
