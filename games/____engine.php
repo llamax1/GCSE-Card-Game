@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (!isset($_SESSION['p1'])){
+    header("Location: ../?please_sign_in");
+    exit();
+}
+
 /*
 
 Choo choo I'm a steam engine!
@@ -76,8 +82,8 @@ $gameno = file_get_contents("____current.txt");
 
 $gameid = base64($gameno);
 
-if (count($p1hand)>count($p2hand)){$winner="1";$loser="2";}
-elseif (count($p2hand)>count($p1hand)){$winner="2";$loser="1";}
+if (count($p1hand)>count($p2hand)){$winner="1";$loser="2";$winno = count($p1hand);}
+elseif (count($p2hand)>count($p1hand)){$winner="2";$loser="1";$winno = count($p2hand);}
 else {$winner = "!!Oh dear. The computer messed up.!!";}
 
 file_put_contents($gameid.'.json', json_encode(Array("winner"=>$winner, "loser" => $loser, "rounds"=>$rounds,"p1hand"=>$p1hand,"p2hand"=>$p2hand)));
@@ -85,6 +91,18 @@ file_put_contents($gameid.'.json', json_encode(Array("winner"=>$winner, "loser" 
 //Comment out to not change gameid between rounds
 file_put_contents("____current.txt", $gameno+1);
 
-echo $gameid;
+$lb = json_decode(file_get_contents('../leaderboard.json'), true);
 
+array_push($lb, [$_SESSION['p'.$winner], $winno]);
+
+$names  = array_column($lb, 0);
+$scores = array_column($lb, 1);
+
+// Sort the data with volume descending, edition ascending
+// Add $data as the last parameter, to sort by the common key
+array_multisort($scores, SORT_DESC, $lb);
+
+file_put_contents('../leaderboard.json',json_encode($lb));
+
+echo $gameid;
 ?>
